@@ -10,7 +10,9 @@ export async function GET() {
         return NextResponse.json({ error: 'API key missing' }, { status: 500 });
     }
 
-    const URL = `https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&size=10&sort=date,asc&apikey=${API_KEY}`;
+    const URL = `https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&countryCode=TR&size=10&sort=date,asc&apikey=${API_KEY}`;
+
+
 
     try {
         const res = await fetch(URL);
