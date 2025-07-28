@@ -1,30 +1,32 @@
 'use client';
 
-import { Box, Container, Grid } from '@mui/material';
-import Navbar from '@/components/Navbar';
-import TrendingConcerts from '@/components/TrendingConcerts';
-import PostList from '@/components/PostList';
+import { Box, Grid } from '@mui/material';
 import FilterSidebar from '@/components/FilterSidebar';
+import TrendingConcerts from '@/components/TrendingConcerts';
 import RightSidebar from '@/components/RightSidebar';
+import PostList from '@/components/PostList';
 
 export default function HomePage() {
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-            <Navbar />
+        <Box sx={{ px: 4, py: 3 }}>
             <TrendingConcerts />
-            <Container maxWidth="lg" sx={{ mt: 2 }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={3}>
-                        <FilterSidebar />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <PostList />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <RightSidebar />
-                    </Grid>
+
+            <Grid container spacing={3} mt={2}>
+                {/* Sol - Filtre */}
+                <Grid item xs={12} md={3}>
+                    <FilterSidebar />
                 </Grid>
-            </Container>
+
+                {/* Orta - Postlar */}
+                <Grid item xs={12} md={6}>
+                    <PostList />
+                </Grid>
+
+                {/* Sağ - Popüler sanatçılar ve etkinlikler */}
+                <Grid item xs={12} md={3}>
+                    <RightSidebar />
+                </Grid>
+            </Grid>
         </Box>
     );
 }
