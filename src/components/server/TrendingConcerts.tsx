@@ -1,20 +1,17 @@
+// DİKKAT: use client YOK
+
 import { Box, Typography, Card, CardContent, CardMedia, Grid } from '@mui/material';
 import { fetchTrendingConcerts } from '@/lib/fetchConcerts';
 
 export default async function TrendingConcerts() {
-    const concerts = (await fetchTrendingConcerts()).slice(0, 4); // sadece 5 tane
+    const concerts = (await fetchTrendingConcerts()).slice(0, 4);
 
     return (
         <Box p={2}>
             <Typography variant="h5" gutterBottom>
                 Trending Concerts
             </Typography>
-            <Grid
-                container
-                spacing={3}
-                justifyContent="center"
-                alignItems="stretch"
-            >
+            <Grid container spacing={3} justifyContent="center" alignItems="stretch">
                 {concerts.map((concert: any) => (
                     <Grid
                         item

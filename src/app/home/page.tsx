@@ -1,10 +1,10 @@
-'use client';
-
 import { Box, Grid } from '@mui/material';
 import FilterSidebar from '@/components/FilterSidebar';
-import TrendingConcerts from '@/components/TrendingConcerts';
 import RightSidebar from '@/components/RightSidebar';
 import PostList from '@/components/PostList';
+import TrendingConcerts from '@/components/server/TrendingConcerts';
+import AddPostForm from '@/components/AddPostForm'; // Bu client olabilir
+import AddPostClientWrapper from '@/components/AddPostClientWrapper';
 
 export default function HomePage() {
     return (
@@ -12,17 +12,17 @@ export default function HomePage() {
             <TrendingConcerts />
 
             <Grid container spacing={3} mt={2}>
-                {/* Sol - Filtre */}
                 <Grid item xs={12} md={3}>
                     <FilterSidebar />
                 </Grid>
 
-                {/* Orta - Postlar */}
                 <Grid item xs={12} md={6}>
+                    <AddPostClientWrapper /> {/* DOĞRU KULLANIM */}
                     <PostList />
                 </Grid>
 
-                {/* Sağ - Popüler sanatçılar ve etkinlikler */}
+
+
                 <Grid item xs={12} md={3}>
                     <RightSidebar />
                 </Grid>
