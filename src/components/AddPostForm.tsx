@@ -1,3 +1,4 @@
+// src/components/AddPostForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -39,11 +40,17 @@ export default function AddPostForm() {
         try {
             console.log('form gönderiliyor:', form); // test logu
 
+            const token = localStorage.getItem('token');
+
             const res = await fetch('/api/posts', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
                 body: JSON.stringify(form),
             });
+
 
             if (res.ok) {
                 setForm({ description: '', imageUrl: '', artistName: '' });

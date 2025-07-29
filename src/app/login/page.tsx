@@ -19,7 +19,7 @@ export default function LoginPage() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const router = useRouter(); // ✅ yönlendirme için
+    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -36,12 +36,16 @@ export default function LoginPage() {
                 body: JSON.stringify(form),
             });
 
+            const data = await res.json();
+
             if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.message || 'Login failed');
+                throw new Error(data.message || 'Login failed');
             }
 
-            // ✅ Giriş başarılıysa /home sayfasına yönlendir
+            // ✅ Token'ı localStorage'a kaydet
+            localStorage.setItem('token', data.token);
+
+            // ✅ Ana sayfaya yönlendir
             router.push('/home');
         } catch (err: any) {
             setError(err.message);
@@ -93,4 +97,3 @@ export default function LoginPage() {
         </Container>
     );
 }
-// src/app/login/page.tsx
