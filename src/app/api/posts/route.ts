@@ -1,5 +1,4 @@
 // src/app/api/posts/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
@@ -7,21 +6,21 @@ import jwt from 'jsonwebtoken';
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
-    const authHeader = req.headers.get('authorization');
-    const token = authHeader?.split(' ')[1];
+    // ✅ Cookie'den token'ı al
+    const token = req.cookies.get('token')?.value;
 
     if (!token) {
         return NextResponse.json({ message: 'Token eksik' }, { status: 401 });
     }
 
-    let decoded: any;
+    let userId;
     try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET!);
+        // ✅ Token'ı doğrula
+        const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+        userId = decoded.id; // dikkat: "userId" değil "id" çünkü jwt.sign içinde "id" kullandık
     } catch (err) {
         return NextResponse.json({ message: 'Geçersiz token' }, { status: 401 });
     }
-
-    const userId = decoded.userId;
 
     const body = await req.json();
     const { description, imageUrl, artistName } = body;
@@ -49,7 +48,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('Post eklenemedi:', error);
         return NextResponse.json(
-            { message: 'Post oluşturulurken hata oluştu', error },
+            { message: 'Post oluşturulurken hata oluştu' },
             { status: 500 }
         );
     }

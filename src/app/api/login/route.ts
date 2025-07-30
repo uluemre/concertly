@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers'; // 🍪 cookie yazmak için
 
 const prisma = new PrismaClient();
 
@@ -10,29 +11,44 @@ export async function POST(req: Request) {
         const { email, password } = body;
 
         if (!email || !password) {
-            return NextResponse.json({ message: 'Email ve şifre zorunludur' }, { status: 400 });
+            return NextResponse.json(
+                { message: 'Email ve şifre zorunludur' },
+                { status: 400 }
+            );
         }
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
 
-        if (!user) {
-            return NextResponse.json({ message: 'Kullanıcı bulunamadı' }, { status: 404 });
+        if (!user || user.password !== password) {
+            return NextResponse.json(
+                { message: 'Geçersiz kullanıcı bilgisi' },
+                { status: 401 }
+            );
         }
 
-        if (user.password !== password) {
-            return NextResponse.json({ message: 'Şifre hatalı' }, { status: 401 });
-        }
-
-        // ✅ DÜZENLEME: id yerine userId gönder
         const token = jwt.sign(
-            { userId: user.id }, // ✅ BURASI
+            { userId: user.id },
             process.env.JWT_SECRET!,
             { expiresIn: '7d' }
         );
 
-        return NextResponse.json({ message: 'Giriş başarılı', token }, { status: 200 });
+        // 🍪 token'ı cookie olarak ayarla
+        cookies().set('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/',
+            maxAge: 60 * 60 * 24 * 7 // 7 gün
+        });
+
+        return NextResponse.json({ message: 'Login başarılı' }, { status: 200 });
     } catch (err) {
         console.error('Login error:', err);
-        return NextResponse.json({ message: 'Sunucu hatası' }, { status: 500 });
+        return NextResponse.json(
+            { message: 'Sunucu hatası' },
+            { status: 500 }
+        );
     }
 }

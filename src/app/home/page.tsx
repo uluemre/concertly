@@ -6,7 +6,6 @@ import PostList from '@/components/PostList';
 import TrendingConcerts from '@/components/server/TrendingConcerts';
 import AddPostClientWrapper from '@/components/AddPostClientWrapper';
 import Navbar from '@/components/Navbar'; // ✅ Navbar import edildi
-
 export default function HomePage() {
     return (
         <>
