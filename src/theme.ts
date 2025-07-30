@@ -12,7 +12,7 @@ const theme = createTheme({
         },
     },
     typography: {
-        fontFamily: 'Roboto, sans-serif',
+        fontFamily: 'var(--font-inter), Inter, Roboto, sans-serif',
     },
 });
 
