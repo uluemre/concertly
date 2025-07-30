@@ -6,11 +6,13 @@ import PostList from '@/components/PostList';
 import TrendingConcerts from '@/components/server/TrendingConcerts';
 import AddPostClientWrapper from '@/components/AddPostClientWrapper';
 import Navbar from '@/components/Navbar'; // ✅ Navbar import edildi
+import HeroSection from '@/components/HeroSection';
 
 export default function HomePage() {
     return (
         <>
             <Navbar /> {/* ✅ Navbar en üste yerleştirildi */}
+            <HeroSection />
 
             <Box sx={{ px: 4, py: 3 }}>
                 <TrendingConcerts />
