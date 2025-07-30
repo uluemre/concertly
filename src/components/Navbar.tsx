@@ -1,70 +1,66 @@
 // src/components/Navbar.tsx
 'use client';
 
-import { AppBar, Toolbar, Button, Box } from '@mui/material';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { AppBar, Box, Toolbar, Typography, Button } from '@mui/material';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
-    const [username, setUsername] = useState<string | null>(null);
-    const router = useRouter();
+    const [user, setUser] = useState<any>(null);
+    const pathname = usePathname();
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+        const fetchUser = async () => {
             try {
-                const parsed = JSON.parse(storedUser);
-                setUsername(parsed.username);
-            } catch {
-                setUsername(null);
-            }
-        }
-    }, []);
+                const res = await fetch('/api/me', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUsername(null);
-        router.push('/');
-    };
+                if (res.ok) {
+                    const data = await res.json();
+                    setUser(data.user);
+                } else {
+                    setUser(null);
+                }
+            } catch (err) {
+                console.error('Kullanıcı çekilemedi:', err);
+                setUser(null);
+            }
+        };
+
+        fetchUser();
+    }, [pathname]);
 
     return (
-        <AppBar position="static" sx={{ bgcolor: 'background.default', boxShadow: 1 }}>
-            <Toolbar sx={{ justifyContent: 'space-between' }}>
-                <Box
-                    sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                    onClick={() => router.push('/')}
-                >
-                    <Image
-                        src="/logo.png" // logonun yolu
-                        alt="Concertly Logo"
-                        width={100}
-                        height={95}
-                        style={{ objectFit: 'contain' }}
-                        priority
-                    />
-                </Box>
+        <AppBar position="sticky">
+            <Toolbar>
+                <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                    <Link href="/home" style={{ color: 'inherit', textDecoration: 'none' }}>
+                        concertly
+                    </Link>
+                </Typography>
 
-                <Box>
-                    {username ? (
-                        <>
-                            <span style={{ marginRight: '1rem' }}>👋 {username}</span>
-                            <Button color="inherit" onClick={handleLogout}>
-                                Logout
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button color="inherit" onClick={() => router.push('/login')}>
-                                Login
-                            </Button>
-                            <Button color="inherit" onClick={() => router.push('/register')}>
-                                Register
-                            </Button>
-                        </>
-                    )}
-                </Box>
+                {user ? (
+                    <>
+                        <Button color="inherit" component={Link} href={`/user/${user.username}`}>
+                            Profil
+                        </Button>
+                        <Button color="inherit" component={Link} href="/api/logout">
+                            Çıkış
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <Button color="inherit" component={Link} href="/login">
+                            Giriş Yap
+                        </Button>
+                        <Button color="inherit" component={Link} href="/register">
+                            Kayıt Ol
+                        </Button>
+                    </>
+                )}
             </Toolbar>
         </AppBar>
     );
