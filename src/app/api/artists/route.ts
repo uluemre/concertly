@@ -6,6 +6,7 @@ export async function GET() {
     const artists = await prisma.artist.findMany({
         select: { name: true },
         orderBy: { name: 'asc' },
+
     });
 
     return NextResponse.json(artists);

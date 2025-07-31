@@ -6,9 +6,9 @@ import {
     Button,
     TextField,
     Typography,
-    MenuItem,
     CircularProgress,
     Alert,
+    Autocomplete,
 } from '@mui/material';
 
 type PostFormValues = {
@@ -47,8 +47,11 @@ export default function AddPostForm() {
                 const artistData = await artistRes.json();
                 const venueData = await venueRes.json();
 
-                setArtists(artistData);
-                setVenues(venueData);
+                console.log('🎤 artistData:', artistData);
+                console.log('🏟 venueData:', venueData); // 🔥 bunu ekle!
+
+                setArtists(artistData || []);
+                setVenues(venueData || []);
             } catch (err) {
                 console.error('Veri alınamadı:', err);
             } finally {
@@ -57,6 +60,7 @@ export default function AddPostForm() {
         };
         fetchOptions();
     }, []);
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -123,41 +127,45 @@ export default function AddPostForm() {
                 helperText="Bir görsel linki eklemek istersen buraya yapıştırabilirsin"
             />
 
-            <TextField
-                label="Sanatçı Seç (opsiyonel)"
-                name="artistName"
-                value={form.artistName}
-                onChange={handleChange}
-                select
-                fullWidth
-                sx={{ mb: 2 }}
-                disabled={loadingData}
-            >
-                <MenuItem value="">-- Sanatçı Seç --</MenuItem>
-                {artists.map((artist) => (
-                    <MenuItem key={artist.name} value={artist.name}>
-                        {artist.name}
-                    </MenuItem>
-                ))}
-            </TextField>
+            <Autocomplete
+                options={artists}
+                isOptionEqualToValue={(option, value) => option.name === value.name}
+                getOptionLabel={(option) => option.name}
+                value={artists.find((a) => a.name === form.artistName) || null}
+                onChange={(_, newValue) =>
+                    setForm((prev) => ({ ...prev, artistName: newValue?.name || '' }))
+                }
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label="Sanatçı Seç (opsiyonel)"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                    />
+                )}
+            />
 
-            <TextField
-                label="Mekan Seç (opsiyonel)"
-                name="venueName"
-                value={form.venueName}
-                onChange={handleChange}
-                select
-                fullWidth
-                sx={{ mb: 2 }}
-                disabled={loadingData}
-            >
-                <MenuItem value="">-- Mekan Seç --</MenuItem>
-                {venues.map((venue) => (
-                    <MenuItem key={venue.name} value={venue.name}>
-                        {venue.name}
-                    </MenuItem>
-                ))}
-            </TextField>
+
+
+
+            <Autocomplete
+                options={venues}
+                isOptionEqualToValue={(option, value) => option.name === value.name}
+                getOptionLabel={(option) => option.name}
+                value={venues.find((v) => v.name === form.venueName) || null}
+                onChange={(_, newValue) =>
+                    setForm((prev) => ({ ...prev, venueName: newValue?.name || '' }))
+                }
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label="Mekan Seç (opsiyonel)"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                    />
+                )}
+            />
+
 
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
             {success && <Alert severity="success" sx={{ mb: 2 }}>Post başarıyla eklendi!</Alert>}
