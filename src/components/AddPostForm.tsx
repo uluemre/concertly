@@ -15,39 +15,47 @@ type PostFormValues = {
     description: string;
     imageUrl?: string;
     artistName?: string;
+    venueName?: string;
 };
 
-type Artist = {
-    name: string;
-};
+type Artist = { name: string };
+type Venue = { name: string };
 
 export default function AddPostForm() {
     const [form, setForm] = useState<PostFormValues>({
         description: '',
         imageUrl: '',
         artistName: '',
+        venueName: '',
     });
 
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
     const [artists, setArtists] = useState<Artist[]>([]);
-    const [artistsLoading, setArtistsLoading] = useState(true);
+    const [venues, setVenues] = useState<Venue[]>([]);
+    const [loadingData, setLoadingData] = useState(true);
 
-    // 🎤 Artist'leri çek
     useEffect(() => {
-        const fetchArtists = async () => {
+        const fetchOptions = async () => {
             try {
-                const res = await fetch('/api/artists');
-                const data = await res.json();
-                setArtists(data);
+                const [artistRes, venueRes] = await Promise.all([
+                    fetch('/api/artists'),
+                    fetch('/api/venues'),
+                ]);
+
+                const artistData = await artistRes.json();
+                const venueData = await venueRes.json();
+
+                setArtists(artistData);
+                setVenues(venueData);
             } catch (err) {
-                console.error('Sanatçılar alınamadı:', err);
+                console.error('Veri alınamadı:', err);
             } finally {
-                setArtistsLoading(false);
+                setLoadingData(false);
             }
         };
-        fetchArtists();
+        fetchOptions();
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,14 +77,12 @@ export default function AddPostForm() {
         try {
             const res = await fetch('/api/posts', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form),
             });
 
             if (res.ok) {
-                setForm({ description: '', imageUrl: '', artistName: '' });
+                setForm({ description: '', imageUrl: '', artistName: '', venueName: '' });
                 setSuccess(true);
             } else {
                 const err = await res.json();
@@ -114,7 +120,7 @@ export default function AddPostForm() {
                 onChange={handleChange}
                 fullWidth
                 sx={{ mb: 2 }}
-                helperText="Post'a görsel eklemek istersen direkt URL olarak yazabilirsin"
+                helperText="Bir görsel linki eklemek istersen buraya yapıştırabilirsin"
             />
 
             <TextField
@@ -122,15 +128,33 @@ export default function AddPostForm() {
                 name="artistName"
                 value={form.artistName}
                 onChange={handleChange}
-                fullWidth
                 select
-                disabled={artistsLoading}
+                fullWidth
                 sx={{ mb: 2 }}
+                disabled={loadingData}
             >
                 <MenuItem value="">-- Sanatçı Seç --</MenuItem>
                 {artists.map((artist) => (
                     <MenuItem key={artist.name} value={artist.name}>
                         {artist.name}
+                    </MenuItem>
+                ))}
+            </TextField>
+
+            <TextField
+                label="Mekan Seç (opsiyonel)"
+                name="venueName"
+                value={form.venueName}
+                onChange={handleChange}
+                select
+                fullWidth
+                sx={{ mb: 2 }}
+                disabled={loadingData}
+            >
+                <MenuItem value="">-- Mekan Seç --</MenuItem>
+                {venues.map((venue) => (
+                    <MenuItem key={venue.name} value={venue.name}>
+                        {venue.name}
                     </MenuItem>
                 ))}
             </TextField>
