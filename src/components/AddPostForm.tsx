@@ -1,18 +1,24 @@
-// src/components/AddPostForm.tsx
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Box,
     Button,
     TextField,
     Typography,
+    MenuItem,
+    CircularProgress,
+    Alert,
 } from '@mui/material';
 
 type PostFormValues = {
     description: string;
     imageUrl?: string;
     artistName?: string;
+};
+
+type Artist = {
+    name: string;
 };
 
 export default function AddPostForm() {
@@ -24,43 +30,61 @@ export default function AddPostForm() {
 
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [error, setError] = useState('');
+    const [artists, setArtists] = useState<Artist[]>([]);
+    const [artistsLoading, setArtistsLoading] = useState(true);
+
+    // 🎤 Artist'leri çek
+    useEffect(() => {
+        const fetchArtists = async () => {
+            try {
+                const res = await fetch('/api/artists');
+                const data = await res.json();
+                setArtists(data);
+            } catch (err) {
+                console.error('Sanatçılar alınamadı:', err);
+            } finally {
+                setArtistsLoading(false);
+            }
+        };
+        fetchArtists();
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
-        console.log('form güncellendi:', { ...form, [name]: value }); // test logu
+        setError('');
+        setSuccess(false);
     };
 
     const handleSubmit = async () => {
-        if (!form.description.trim()) return;
+        if (!form.description.trim()) {
+            setError('Açıklama zorunludur.');
+            return;
+        }
 
         setLoading(true);
         setSuccess(false);
 
         try {
-            console.log('form gönderiliyor:', form); // test logu
-
-            const token = localStorage.getItem('token');
-
             const res = await fetch('/api/posts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify(form),
             });
 
-
             if (res.ok) {
                 setForm({ description: '', imageUrl: '', artistName: '' });
                 setSuccess(true);
-                console.log('Post başarıyla eklendi.');
             } else {
-                console.error('Sunucu hatası:', await res.json());
+                const err = await res.json();
+                setError(err.message || 'Sunucu hatası');
             }
         } catch (err) {
             console.error('İstek hatası:', err);
+            setError('İstek gönderilirken hata oluştu');
         } finally {
             setLoading(false);
         }
@@ -78,6 +102,7 @@ export default function AddPostForm() {
                 value={form.description}
                 onChange={handleChange}
                 fullWidth
+                multiline
                 rows={3}
                 sx={{ mb: 2 }}
             />
@@ -89,30 +114,38 @@ export default function AddPostForm() {
                 onChange={handleChange}
                 fullWidth
                 sx={{ mb: 2 }}
+                helperText="Post'a görsel eklemek istersen direkt URL olarak yazabilirsin"
             />
 
             <TextField
-                label="Sanatçı Adı (opsiyonel)"
+                label="Sanatçı Seç (opsiyonel)"
                 name="artistName"
                 value={form.artistName}
                 onChange={handleChange}
                 fullWidth
+                select
+                disabled={artistsLoading}
                 sx={{ mb: 2 }}
-            />
+            >
+                <MenuItem value="">-- Sanatçı Seç --</MenuItem>
+                {artists.map((artist) => (
+                    <MenuItem key={artist.name} value={artist.name}>
+                        {artist.name}
+                    </MenuItem>
+                ))}
+            </TextField>
+
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            {success && <Alert severity="success" sx={{ mb: 2 }}>Post başarıyla eklendi!</Alert>}
 
             <Button
                 variant="contained"
                 onClick={handleSubmit}
                 disabled={loading || !form.description.trim()}
+                fullWidth
             >
-                {loading ? 'Gönderiliyor...' : 'Gönder'}
+                {loading ? <CircularProgress size={20} /> : 'Gönder'}
             </Button>
-
-            {success && (
-                <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
-                    Post başarıyla eklendi!
-                </Typography>
-            )}
         </Box>
     );
 }

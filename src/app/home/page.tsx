@@ -5,11 +5,9 @@ import RightSidebar from '@/components/RightSidebar';
 import PostList from '@/components/PostList';
 import TrendingConcerts from '@/components/server/TrendingConcerts';
 import AddPostClientWrapper from '@/components/AddPostClientWrapper';
-import Navbar from '@/components/Navbar'; // ✅ Navbar import edildi
 export default function HomePage() {
     return (
         <>
-            <Navbar /> {/* ✅ Navbar en üste yerleştirildi */}
 
             <Box sx={{ px: 4, py: 3 }}>
                 <TrendingConcerts />
@@ -20,7 +18,6 @@ export default function HomePage() {
                     </Grid>
 
                     <Grid item xs={12} md={6}>
-                        <AddPostClientWrapper />
                         <PostList />
                     </Grid>
 

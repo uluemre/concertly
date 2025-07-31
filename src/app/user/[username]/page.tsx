@@ -1,8 +1,9 @@
-// src/app/user/[username]/page.tsx
 import { getUserWithPostsByUsername } from '@/server/user';
 import { notFound } from 'next/navigation';
 import { Box, Typography, Divider } from '@mui/material';
 import PostCard from '@/components/PostCard';
+import { getCurrentUser } from '@/lib/auth';
+import AddPostClientWrapper from '@/components/AddPostClientWrapper';
 
 type Props = {
     params: { username: string };
@@ -12,6 +13,7 @@ export default async function UserProfilePage({ params }: Props) {
     const { username } = params;
 
     const user = await getUserWithPostsByUsername(username);
+    const currentUser = await getCurrentUser();
 
     if (!user) return notFound();
 
@@ -22,9 +24,15 @@ export default async function UserProfilePage({ params }: Props) {
                 Katıldı: {new Date(user.createdAt).toLocaleDateString('tr-TR')}
             </Typography>
 
-            <Divider sx={{ my: 4 }} />
+            {/* 🔐 Eğer giriş yapan kişi kendi profilindeyse post formu göster */}
+            {currentUser?.id === user.id && (
+                <Box my={4}>
+                    <AddPostClientWrapper />
+                    <Divider sx={{ mt: 4 }} />
+                </Box>
+            )}
 
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
                 Gönderiler
             </Typography>
 
@@ -40,7 +48,6 @@ export default async function UserProfilePage({ params }: Props) {
                             artistName={post.artist?.name}
                             createdAt={post.createdAt.toISOString()}
                         />
-
                     </Box>
                 ))
             )}
