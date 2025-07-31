@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, CardContent, Typography, Box, CardMedia } from '@mui/material';
+import Link from 'next/link';
 
 type PostProps = {
     userName: string;
@@ -33,7 +34,13 @@ export default function PostCard({
                 </Typography>
                 {artistName && (
                     <Typography variant="body2" color="text.secondary">
-                        🎤 {artistName}
+                        🎤{' '}
+                        <Link
+                            href={`/artist/${encodeURIComponent(artistName)}`}
+                            style={{ color: 'inherit', textDecoration: 'underline' }}
+                        >
+                            {artistName}
+                        </Link>
                     </Typography>
                 )}
                 <Typography variant="body1" sx={{ mt: 1 }}>

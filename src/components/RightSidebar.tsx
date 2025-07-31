@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Typography, Divider, Card, CardContent, Avatar } from '@mui/material';
+import Link from 'next/link';
 
 const popularArtists = [
     {
@@ -19,8 +20,6 @@ const popularArtists = [
         name: 'Coldplay',
         image: '/coldplay.jpeg',
     },
-
-
 ];
 
 const upcomingEvents = [
@@ -46,12 +45,18 @@ export default function RightSidebar() {
             </Typography>
             <Divider sx={{ mb: 2 }} />
             {popularArtists.map((artist, index) => (
-                <Card key={index} sx={{ display: 'flex', mb: 1 }}>
-                    <Avatar src={artist.image} alt={artist.name} sx={{ width: 48, height: 48, m: 1 }} />
-                    <CardContent sx={{ padding: '8px 16px' }}>
-                        <Typography variant="body1">{artist.name}</Typography>
-                    </CardContent>
-                </Card>
+                <Link
+                    key={index}
+                    href={`/artist/${encodeURIComponent(artist.name)}`}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                    <Card sx={{ display: 'flex', mb: 1, cursor: 'pointer' }}>
+                        <Avatar src={artist.image} alt={artist.name} sx={{ width: 48, height: 48, m: 1 }} />
+                        <CardContent sx={{ padding: '8px 16px' }}>
+                            <Typography variant="body1">{artist.name}</Typography>
+                        </CardContent>
+                    </Card>
+                </Link>
             ))}
 
             <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
