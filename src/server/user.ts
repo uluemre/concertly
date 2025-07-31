@@ -6,7 +6,10 @@ export async function getUserWithPostsByUsername(username: string) {
         where: { username },
         include: {
             posts: {
-                include: { artist: true }, // 🔥 BURASI EKLENDİ
+                include: {
+                    artist: true,
+                    venue: true, // 🔥 burada artist ve venue birlikte yazılıyor
+                },
                 orderBy: { createdAt: 'desc' },
             },
         },

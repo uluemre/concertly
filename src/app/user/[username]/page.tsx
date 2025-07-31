@@ -24,7 +24,7 @@ export default async function UserProfilePage({ params }: Props) {
                 Katıldı: {new Date(user.createdAt).toLocaleDateString('tr-TR')}
             </Typography>
 
-            {/* 🔐 Eğer giriş yapan kişi kendi profilindeyse post formu göster */}
+
             {currentUser?.id === user.id && (
                 <Box my={4}>
                     <AddPostClientWrapper />
@@ -46,6 +46,7 @@ export default async function UserProfilePage({ params }: Props) {
                             description={post.description}
                             imageUrl={post.imageUrl ?? undefined}
                             artistName={post.artist?.name}
+                            venueName={post.venue?.name}
                             createdAt={post.createdAt.toISOString()}
                         />
                     </Box>

@@ -1,3 +1,4 @@
+// src/lib/postService.ts
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -15,6 +16,9 @@ export async function getAllPosts() {
                 artist: {
                     select: { name: true },
                 },
+                venue: {
+                    select: { name: true }, // 🔥 mekan bilgisi eklendi
+                },
             },
         });
 
@@ -25,6 +29,7 @@ export async function getAllPosts() {
             createdAt: post.createdAt.toISOString(),
             userName: post.user?.username || 'Unknown',
             artistName: post.artist?.name || null,
+            venueName: post.venue?.name || null, // 🔥 burası da map’e eklendi
         }));
     } catch (error) {
         console.error('Error fetching posts:', error);

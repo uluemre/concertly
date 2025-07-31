@@ -1,3 +1,4 @@
+// src/components/PostList.tsx
 import { Box, Typography } from '@mui/material';
 import { getAllPosts } from '@/lib/postService';
 import PostCard from './PostCard';
@@ -17,6 +18,7 @@ export default async function PostList() {
                     description={post.description}
                     imageUrl={post.imageUrl}
                     artistName={post.artistName}
+                    venueName={post.venueName}
                     createdAt={post.createdAt}
                 />
             ))}

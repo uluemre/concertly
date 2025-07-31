@@ -8,6 +8,7 @@ type PostProps = {
     description: string;
     imageUrl?: string;
     artistName?: string;
+    venueName?: string;
     createdAt: string;
 };
 
@@ -16,6 +17,7 @@ export default function PostCard({
     description,
     imageUrl,
     artistName,
+    venueName,
     createdAt,
 }: PostProps) {
     return (
@@ -32,6 +34,7 @@ export default function PostCard({
                 <Typography variant="subtitle1" fontWeight="bold">
                     {userName}
                 </Typography>
+
                 {artistName && (
                     <Typography variant="body2" color="text.secondary">
                         🎤{' '}
@@ -43,6 +46,19 @@ export default function PostCard({
                         </Link>
                     </Typography>
                 )}
+
+                {venueName && (
+                    <Typography variant="body2" color="text.secondary">
+                        📍{' '}
+                        <Link
+                            href={`/venue/${encodeURIComponent(venueName)}`}
+                            style={{ color: 'inherit', textDecoration: 'underline' }}
+                        >
+                            {venueName}
+                        </Link>
+                    </Typography>
+                )}
+
                 <Typography variant="body1" sx={{ mt: 1 }}>
                     {description}
                 </Typography>
