@@ -47,9 +47,6 @@ export default function AddPostForm() {
                 const artistData = await artistRes.json();
                 const venueData = await venueRes.json();
 
-                console.log('🎤 artistData:', artistData);
-                console.log('🏟 venueData:', venueData); // 🔥 bunu ekle!
-
                 setArtists(artistData || []);
                 setVenues(venueData || []);
             } catch (err) {

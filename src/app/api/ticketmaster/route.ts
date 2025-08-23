@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
     const API_KEY = process.env.TICKETMASTER_API_KEY;
-
-    console.log("📡 TICKETMASTER_API_KEY:", API_KEY);
+    if (process.env.NODE_ENV !== 'production') {
+        console.log("📡 TICKETMASTER_API_KEY:", API_KEY);
+    }
 
     if (!API_KEY) {
         return NextResponse.json({ error: 'API key missing' }, { status: 500 });
@@ -18,7 +19,9 @@ export async function GET() {
         const res = await fetch(URL);
         const data = await res.json();
 
-        console.log("🎟️ Ticketmaster API response:", JSON.stringify(data, null, 2)); // ✨ EKLENDİ
+        if (process.env.NODE_ENV !== 'production') {
+            console.log("🎟️ Ticketmaster API response:", JSON.stringify(data, null, 2));
+        }
 
         const concerts = data._embedded?.events?.map((event: any) => ({
             id: event.id,
