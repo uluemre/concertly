@@ -1,71 +1,87 @@
-'use client';
+"use client";
 
-import { Card, CardContent, Typography, Box, CardMedia } from '@mui/material';
-import Link from 'next/link';
+import React from "react";
+import { Card, CardHeader, CardContent, CardActions, Avatar, Typography, IconButton } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 
-type PostProps = {
-    userName: string;
-    description: string;
-    imageUrl?: string;
-    artistName?: string;
-    venueName?: string;
-    createdAt: string;
-};
+interface User {
+  id: string;
+  username: string;
+  profileImage?: string | null;
+}
 
-export default function PostCard({
-    userName,
-    description,
-    imageUrl,
-    artistName,
-    venueName,
-    createdAt,
-}: PostProps) {
-    return (
-        <Card sx={{ display: 'flex', gap: 2, p: 2, mb: 3 }}>
-            {imageUrl && (
-                <CardMedia
-                    component="img"
-                    sx={{ width: 160, height: 160, objectFit: 'cover', borderRadius: 2 }}
-                    image={imageUrl}
-                    alt="post image"
-                />
-            )}
-            <CardContent sx={{ flex: 1 }}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                    {userName}
-                </Typography>
+interface Event {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+}
 
-                {artistName && (
-                    <Typography variant="body2" color="text.secondary">
-                        🎤{' '}
-                        <Link
-                            href={`/artist/${encodeURIComponent(artistName)}`}
-                            style={{ color: 'inherit', textDecoration: 'underline' }}
-                        >
-                            {artistName}
-                        </Link>
-                    </Typography>
-                )}
+interface Count {
+  likes: number;
+  comments: number;
+}
 
-                {venueName && (
-                    <Typography variant="body2" color="text.secondary">
-                        📍{' '}
-                        <Link
-                            href={`/venue/${encodeURIComponent(venueName)}`}
-                            style={{ color: 'inherit', textDecoration: 'underline' }}
-                        >
-                            {venueName}
-                        </Link>
-                    </Typography>
-                )}
+interface Post {
+  id: string;
+  description?: string | null;
+  imageUrls: string[];
+  createdAt: string;
+  user: User;
+  event?: Event | null;
+  _count: Count;
+}
 
-                <Typography variant="body1" sx={{ mt: 1 }}>
-                    {description}
-                </Typography>
-                <Typography variant="caption" sx={{ mt: 1, display: 'block' }} color="text.secondary">
-                    {new Date(createdAt).toLocaleDateString()}
-                </Typography>
-            </CardContent>
-        </Card>
-    );
+interface PostCardProps {
+  post: Post;
+}
+
+export default function PostCard({ post }: PostCardProps) {
+  return (
+    <Card sx={{ maxWidth: 600, mb: 3, mx: "auto", bgcolor: "background.paper" }}>
+      <CardHeader
+        avatar={
+          <Avatar
+            src={post.user.profileImage || ""}
+            alt={post.user.username}
+          >
+            {post.user.username.charAt(0).toUpperCase()}
+          </Avatar>
+        }
+        title={post.user.username}
+        subheader={new Date(post.createdAt).toLocaleDateString()}
+      />
+      {post.imageUrls && post.imageUrls.length > 0 && (
+        <img
+          src={post.imageUrls[0]}
+          alt="Post image"
+          style={{ width: "100%", height: "auto", objectFit: "cover" }}
+        />
+      )}
+      <CardContent>
+        {post.event && (
+          <Typography variant="subtitle2" color="primary" gutterBottom>
+            Event: {post.event.name}
+          </Typography>
+        )}
+        <Typography variant="body2" color="text.secondary">
+          {post.description}
+        </Typography>
+      </CardContent>
+      <CardActions disableSpacing>
+        <IconButton aria-label="add to favorites">
+          <FavoriteIcon />
+        </IconButton>
+        <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
+          {post._count?.likes || 0}
+        </Typography>
+        <IconButton aria-label="comment">
+          <ChatBubbleOutlineIcon />
+        </IconButton>
+        <Typography variant="body2" color="text.secondary">
+          {post._count?.comments || 0}
+        </Typography>
+      </CardActions>
+    </Card>
+  );
 }

@@ -1,38 +1,54 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { getCurrentUser } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
-export async function POST(req: Request) {
-    try {
-        const body = await req.json();
-        const { description, imageUrl, artistName, venueName } = body;
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_development";
 
-        const user = await getCurrentUser();
-        if (!user) {
-            return NextResponse.json({ message: 'Giriş yapmalısınız' }, { status: 401 });
-        }
-
-        const artist = artistName
-            ? await prisma.artist.findUnique({ where: { name: artistName } })
-            : null;
-
-        const venue = venueName
-            ? await prisma.venue.findUnique({ where: { name: venueName } })
-            : null;
-
-        const post = await prisma.post.create({
-            data: {
-                description,
-                imageUrl,
-                user: { connect: { id: user.id } },
-                artist: artist ? { connect: { id: artist.id } } : undefined,
-                venue: venue ? { connect: { id: venue.id } } : undefined,
-            },
-        });
-
-        return NextResponse.json(post, { status: 201 });
-    } catch (err) {
-        console.error('Post oluşturma hatası:', err);
-        return NextResponse.json({ message: 'Sunucu hatası' }, { status: 500 });
+export async function POST(req: NextRequest) {
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const token = authHeader.split(" ")[1];
+    let decodedToken;
+    try {
+      decodedToken = jwt.verify(token, JWT_SECRET) as { userId: string };
+    } catch (err) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    const userId = decodedToken.userId;
+    const body = await req.json();
+    const { description, imageUrls, eventId, artistId, venueId } = body;
+
+    const newPost = await prisma.post.create({
+      data: {
+        description,
+        imageUrls: imageUrls || [],
+        userId,
+        eventId,
+        artistId,
+        venueId,
+      },
+      include: {
+        user: { select: { id: true, username: true } },
+      },
+    });
+
+    return NextResponse.json(
+      { message: "Post created successfully", post: newPost },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error creating post:", error);
+    return NextResponse.json(
+      { error: "An error occurred while creating the post." },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
 }

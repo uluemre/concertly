@@ -25,7 +25,7 @@ export async function getAllPosts() {
         return posts.map((post: any) => ({
             id: post.id,
             description: post.description,
-            imageUrl: post.imageUrl,
+            imageUrl: post.imageUrls?.[0] || null,
             createdAt: post.createdAt.toISOString(),
             userName: post.user?.username || 'Unknown',
             artistName: post.artist?.name || null,
@@ -58,7 +58,7 @@ export async function addPost(postData: {
         const newPost = await prisma.post.create({
             data: {
                 description: postData.description,
-                imageUrl: postData.imageUrl,
+                imageUrls: postData.imageUrl ? [postData.imageUrl] : [],
                 userId: user.id,
                 artistId,
             },

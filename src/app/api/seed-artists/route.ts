@@ -1,8 +1,8 @@
 // src/app/api/seed-artists/route.ts
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-
-export const dynamic = 'force-dynamic';
 
 const TICKETMASTER_API_KEY = process.env.TICKETMASTER_API_KEY!;
 const BASE_URL = 'https://app.ticketmaster.com/discovery/v2/events.json';
