@@ -8,7 +8,9 @@ export async function getUserWithPostsByUsername(username: string) {
             posts: {
                 include: {
                     artist: true,
-                    venue: true, // 🔥 burada artist ve venue birlikte yazılıyor
+                    venue: true,
+                    event: true,
+                    _count: { select: { likes: true, comments: true } },
                 },
                 orderBy: { createdAt: 'desc' },
             },

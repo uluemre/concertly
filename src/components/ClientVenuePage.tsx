@@ -60,11 +60,26 @@ export default function ClientVenuePage({ venue }: Props) {
                 venue.posts.map((post: any) => (
                     <Box key={post.id} mb={2}>
                         <PostCard
-                            userName={post.user.username}
-                            description={post.description}
-                            imageUrl={post.imageUrl ?? undefined}
-                            artistName={post.artist?.name}
-                            createdAt={post.createdAt.toISOString()}
+                            post={{
+                                id: post.id,
+                                description: post.description,
+                                imageUrls: post.imageUrls,
+                                createdAt: new Date(post.createdAt).toISOString(),
+                                user: {
+                                    id: post.user.id,
+                                    username: post.user.username,
+                                    profileImage: post.user.profileImage,
+                                },
+                                event: post.event ? {
+                                    id: post.event.id,
+                                    name: post.event.name,
+                                    imageUrl: post.event.imageUrl,
+                                } : null,
+                                _count: {
+                                    likes: post._count.likes,
+                                    comments: post._count.comments
+                                }
+                            }}
                         />
                     </Box>
                 ))

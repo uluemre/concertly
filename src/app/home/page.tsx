@@ -2,7 +2,7 @@
 import { Box, Grid } from '@mui/material';
 import FilterSidebar from '@/components/FilterSidebar';
 import RightSidebar from '@/components/RightSidebar';
-import PostList from '@/components/PostList';
+import Feed from '@/components/Feed';
 import TrendingConcerts from '@/components/server/TrendingConcerts';
 import AddPostClientWrapper from '@/components/AddPostClientWrapper';
 export default function HomePage() {
@@ -18,7 +18,7 @@ export default function HomePage() {
                     </Grid>
 
                     <Grid item xs={12} md={6}>
-                        <PostList />
+                        <Feed />
                     </Grid>
 
                     <Grid item xs={12} md={3}>

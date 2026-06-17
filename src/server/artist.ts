@@ -6,7 +6,11 @@ export async function getArtistWithPosts(name: string) {
         where: { name },
         include: {
             posts: {
-                include: { user: true }, // post'u atan kullanıcıyı da al
+                include: {
+                    user: true,
+                    event: true,
+                    _count: { select: { likes: true, comments: true } }
+                }, // post'u atan kullanıcıyı da al
                 orderBy: { createdAt: 'desc' },
             },
         },

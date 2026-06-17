@@ -42,12 +42,26 @@ export default async function UserProfilePage({ params }: Props) {
                 user.posts.map((post) => (
                     <Box key={post.id} mb={2}>
                         <PostCard
-                            userName={user.username}
-                            description={post.description}
-                            imageUrl={post.imageUrl ?? undefined}
-                            artistName={post.artist?.name}
-                            venueName={post.venue?.name}
-                            createdAt={post.createdAt.toISOString()}
+                            post={{
+                                id: post.id,
+                                description: post.description,
+                                imageUrls: post.imageUrls,
+                                createdAt: post.createdAt.toISOString(),
+                                user: {
+                                    id: user.id,
+                                    username: user.username,
+                                    profileImage: user.profileImage,
+                                },
+                                event: post.event ? {
+                                    id: post.event.id,
+                                    name: post.event.name,
+                                    imageUrl: post.event.imageUrl,
+                                } : null,
+                                _count: {
+                                    likes: post._count.likes,
+                                    comments: post._count.comments
+                                }
+                            }}
                         />
                     </Box>
                 ))

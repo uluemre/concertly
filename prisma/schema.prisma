@@ -8,38 +8,260 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  username   String   @unique
-  email      String   @unique
-  password   String
-  createdAt  DateTime @default(now())
-  posts      Post[]
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  username     String   @unique
+  email        String   @unique
+  password     String
+  profileImage String?
+  bio          String?
+  city         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  posts          Post[]
+  comments       Comment[]
+  likes          Like[]
+  ratings        Rating[]
+  followers      Follow[]          @relation("UserFollowers")
+  following      Follow[]          @relation("UserFollowing")
+  attendances    Attendance[]
+  communities    CommunityMember[]
+  notifications  Notification[]
+  favoriteGenres UserGenre[]
 }
 
 model Post {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  description String
-  imageUrl   String?
-  artist     Artist?  @relation(fields: [artistId], references: [id])
-  artistId   String?  @db.ObjectId
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String   @db.ObjectId
-  venue     Venue?  @relation(fields: [venueId], references: [id])
-  venueId   String? @db.ObjectId
-  createdAt  DateTime @default(now())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String?
+  imageUrls   String[]
+  createdAt   DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+
+  event   Event?  @relation(fields: [eventId], references: [id])
+  eventId String? @db.ObjectId
+
+  artist   Artist? @relation(fields: [artistId], references: [id])
+  artistId String? @db.ObjectId
+
+  venue   Venue?  @relation(fields: [venueId], references: [id])
+  venueId String? @db.ObjectId
+
+  comments Comment[]
+  likes    Like[]
 }
 
 model Artist {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String   @unique
-  bio       String?
-  imageUrl  String?
-  posts     Post[]
-}
-model Venue {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  name     String   @unique
+  id       String        @id @default(auto()) @map("_id") @db.ObjectId
+  name     String        @unique
+  bio      String?
   imageUrl String?
-  description String?
   posts    Post[]
+  events   EventArtist[]
+  genres   ArtistGenre[]
+  ratings  Rating[]
+}
+
+model Venue {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  city        String?
+  country     String?
+  imageUrl    String?
+  description String?
+  posts       Post[]
+  events      Event[]
+  ratings     Rating[]
+}
+
+model Event {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  ticketmasterId String?  @unique
+  name           String
+  description    String?
+  date           DateTime
+  imageUrl       String?
+  ticketLink     String?
+
+  venue   Venue  @relation(fields: [venueId], references: [id])
+  venueId String @db.ObjectId
+
+  artists   EventArtist[]
+  posts     Post[]
+  attendees Attendance[]
+  ratings   Rating[]
+  genres    EventGenre[]
+  tags      EventTag[]
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String @db.ObjectId
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+}
+
+model Like {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String @db.ObjectId
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+
+  @@unique([postId, userId])
+}
+
+model Follow {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+
+  follower   User   @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String @db.ObjectId
+
+  following   User   @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String @db.ObjectId
+
+  @@unique([followerId, followingId])
+}
+
+model Attendance {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String @db.ObjectId
+
+  @@unique([userId, eventId])
+}
+
+model Rating {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  score     Int // 1 to 5
+  review    String?
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+
+  event   Event?  @relation(fields: [eventId], references: [id])
+  eventId String? @db.ObjectId
+
+  artist   Artist? @relation(fields: [artistId], references: [id])
+  artistId String? @db.ObjectId
+
+  venue   Venue?  @relation(fields: [venueId], references: [id])
+  venueId String? @db.ObjectId
+}
+
+model Genre {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  artists ArtistGenre[]
+  events  EventGenre[]
+  users   UserGenre[]
+}
+
+model Tag {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  events EventTag[]
+}
+
+model Community {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String  @unique
+  type        String // "artist", "genre", "city"
+  description String?
+
+  members CommunityMember[]
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  type      String // "like", "comment", "follow"
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+
+  senderId String? @db.ObjectId // Id of the user who triggered the notification
+}
+
+// Join Tables for Many-to-Many Relationships
+
+model EventArtist {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId  String @db.ObjectId
+  artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId String @db.ObjectId
+
+  @@unique([eventId, artistId])
+}
+
+model ArtistGenre {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId String @db.ObjectId
+  genre    Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId  String @db.ObjectId
+
+  @@unique([artistId, genreId])
+}
+
+model EventGenre {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String @db.ObjectId
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId String @db.ObjectId
+
+  @@unique([eventId, genreId])
+}
+
+model UserGenre {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String @db.ObjectId
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId String @db.ObjectId
+
+  @@unique([userId, genreId])
+}
+
+model EventTag {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String @db.ObjectId
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId   String @db.ObjectId
+
+  @@unique([eventId, tagId])
+}
+
+model CommunityMember {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String    @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String    @db.ObjectId
+  joinedAt    DateTime  @default(now())
+
+  @@unique([communityId, userId])
 }

@@ -14,12 +14,22 @@ export default async function PostList() {
             {posts.map((post: any) => (
                 <PostCard
                     key={post.id}
-                    userName={post.userName}
-                    description={post.description}
-                    imageUrl={post.imageUrl}
-                    artistName={post.artistName}
-                    venueName={post.venueName}
-                    createdAt={post.createdAt}
+                    post={{
+                        id: post.id,
+                        description: post.description,
+                        imageUrls: [],
+                        createdAt: post.createdAt,
+                        user: {
+                            id: "unknown",
+                            username: post.userName || "Unknown",
+                            profileImage: null,
+                        },
+                        event: null,
+                        _count: {
+                            likes: 0,
+                            comments: 0
+                        }
+                    }}
                 />
             ))}
         </Box>

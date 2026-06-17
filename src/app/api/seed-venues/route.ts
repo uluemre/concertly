@@ -1,4 +1,6 @@
 // src/app/api/seed-venues/route.ts
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 

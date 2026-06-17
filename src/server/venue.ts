@@ -9,6 +9,8 @@ export async function getVenueWithPosts(name: string) {
         include: {
           user: true,
           artist: true,
+          event: true,
+          _count: { select: { likes: true, comments: true } }
         },
         orderBy: { createdAt: 'desc' },
       },
